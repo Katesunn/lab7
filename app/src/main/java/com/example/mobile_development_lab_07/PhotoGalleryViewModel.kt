@@ -1,13 +1,24 @@
 package com.example.mobile_development_lab_07
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.switchMap // Импортируем switchMap
 
 class PhotoGalleryViewModel : ViewModel() {
-    val galleryItemLiveData:
-            LiveData<List<GalleryItem>>
+    private val flickrFetcher = FlickrFetcher()
+    private val mutableSearchTerm = MutableLiveData<String>()
+
+    // Используем switchMap напрямую на mutableSearchTerm
+    val galleryItemLiveData: LiveData<List<GalleryItem>> = mutableSearchTerm.switchMap { searchTerm ->
+        flickrFetcher.searchPhotos(searchTerm)
+    }
+
     init {
-        galleryItemLiveData =
-            FlickrFetcher().searchPhotos("planets")
+        mutableSearchTerm.value = "planets" // Устанавливаем начальное значение
+    }
+
+    fun fetchPhotos(query: String = "") {
+        mutableSearchTerm.value = query
     }
 }

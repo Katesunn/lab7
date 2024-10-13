@@ -40,7 +40,7 @@ dependencies {
     implementation (libs.picasso)
 
     implementation(libs.androidx.lifecycle.extensions)
-
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.8.6")
     implementation(libs.retrofit)
     implementation(libs.converter.gson.v290)
     implementation(libs.gson)
