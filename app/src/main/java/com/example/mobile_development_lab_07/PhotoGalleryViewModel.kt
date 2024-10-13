@@ -12,7 +12,11 @@ class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app
 
     // Используем switchMap напрямую на mutableSearchTerm
     val galleryItemLiveData: LiveData<List<GalleryItem>> = mutableSearchTerm.switchMap { searchTerm ->
-        flickrFetcher.searchPhotos(searchTerm)
+        if (searchTerm.isBlank()) {
+            flickrFetcher.fetchPhotos()
+        } else {
+            flickrFetcher.searchPhotos(searchTerm)
+        }
     }
 
     init {
