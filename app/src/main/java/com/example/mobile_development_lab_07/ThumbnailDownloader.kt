@@ -5,12 +5,21 @@ import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import java.util.concurrent.ConcurrentHashMap
+import java.util.logging.Handler
 
 private const val TAG = "ThumbnailDownloader"
+private const val MESSAGE_DOWNLOAD = 0
 
 class ThumbnailDownloader<in T>(private val lifecycleOwner: LifecycleOwner) : HandlerThread(TAG), LifecycleObserver {
 
     private var hasQuit = false
+
+    private lateinit var requestHandler: Handler
+
+    private val requestMap = ConcurrentHashMap<T, String>()
+
+    private val flickrFetcher = FlickrFetcher()
 
     override fun quit(): Boolean {
         hasQuit = true
