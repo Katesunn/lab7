@@ -1,8 +1,11 @@
 package com.example.mobile_development_lab_07
 
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,9 +27,17 @@ class PhotoGalleryFragment : Fragment() {
         // Initialize ViewModel using ViewModelProvider
         photoGalleryViewModel = ViewModelProvider(this)[PhotoGalleryViewModel::class.java]
 
-        // Pass 'this' as LifecycleOwner to ThumbnailDownloader
-        thumbnailDownloader = ThumbnailDownloader(this)
+        // Create a Handler associated with the main thread's Looper
+        val responseHandler = Handler(Looper.getMainLooper())
+
+        thumbnailDownloader = ThumbnailDownloader(responseHandler) { photoHolder, bitmap ->
+            val drawable = BitmapDrawable(resources, bitmap)
+            photoHolder.bindDrawable(drawable)
+        }
+
+        lifecycle.addObserver(thumbnailDownloader)
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
