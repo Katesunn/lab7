@@ -1,7 +1,7 @@
 package com.example.mobile_development_lab_07
 
 import android.os.Bundle
-import android.util.Log
+//import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 
-private const val TAG = "PhotoGalleryFragment"
+//private const val TAG = "PhotoGalleryFragment"
 
 class PhotoGalleryFragment : Fragment() {
     private lateinit var photoGalleryViewModel:
@@ -38,7 +38,7 @@ class PhotoGalleryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         photoGalleryViewModel.galleryItemLiveData.observe(viewLifecycleOwner) { galleryItems ->
-            Log.d(TAG, "Have gallery items from ViewModel $galleryItems")  // Обновить данные, поддерживающие представление утилизатора
+            photoRecyclerView.adapter = PhotoAdapter(galleryItems)
         }
     }
 
