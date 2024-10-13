@@ -49,6 +49,26 @@ class PhotoGalleryFragment : Fragment() {
             itemTextView::setText
     }
 
+    private class PhotoAdapter(private val galleryItems: List<GalleryItem>)
+        : RecyclerView.Adapter<PhotoHolder>() {
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+        ): PhotoHolder {
+            val textView =
+                TextView(parent.context)
+            return PhotoHolder(textView)
+        }
+        override fun getItemCount(): Int =
+            galleryItems.size
+        override fun onBindViewHolder(holder:
+                                      PhotoHolder, position: Int) {
+            val galleryItem =
+                galleryItems[position]
+            holder.bindTitle(galleryItem.title)
+        }
+    }
+
     companion object {
         fun newInstance() =
             PhotoGalleryFragment()
