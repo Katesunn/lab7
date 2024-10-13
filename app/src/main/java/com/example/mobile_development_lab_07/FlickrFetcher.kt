@@ -38,10 +38,16 @@ class FlickrFetcher {
     }
 
     fun fetchPhotos(): LiveData<List<GalleryItem>> {
-        val responseLiveData: MutableLiveData<List<GalleryItem>> = MutableLiveData()
+        return fetchPhotoMetadata(flickrApi.fetchPhotos())
+    }
+    fun searchPhotos(text: String): LiveData<List<GalleryItem>> {
+        return fetchPhotoMetadata(flickrApi.searchPhotos(text=text))
+    }
 
-        // Call fetchPhotos with the required parameters
-        val flickrRequest: Call<FlickrResponse> = flickrApi.fetchPhotos() // Ensure you pass your API key
+    private fun fetchPhotoMetadata(flickrRequest: Call<FlickrResponse>)
+            : LiveData<List<GalleryItem>> {
+
+    val responseLiveData: MutableLiveData<List<GalleryItem>> = MutableLiveData()
 
         flickrRequest.enqueue(object : Callback<FlickrResponse> {
             override fun onFailure(call: Call<FlickrResponse>, t: Throwable) {
