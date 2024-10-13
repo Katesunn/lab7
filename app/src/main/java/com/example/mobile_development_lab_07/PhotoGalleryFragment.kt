@@ -35,7 +35,8 @@ class PhotoGalleryFragment : Fragment() {
         val workRequest = OneTimeWorkRequest
             .Builder(PollWorker::class.java)
             .build()
-        WorkManager.getInstance()
+        // Используем новый метод с контекстом
+        WorkManager.getInstance(requireContext())
             .enqueue(workRequest)
     }
 
