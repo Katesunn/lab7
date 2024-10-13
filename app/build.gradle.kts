@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.example.mobile_development_lab_07"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.mobile_development_lab_07"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -36,6 +36,8 @@ android {
 }
 
 dependencies {
+
+    implementation (libs.picasso)
 
     implementation(libs.androidx.lifecycle.extensions)
 
