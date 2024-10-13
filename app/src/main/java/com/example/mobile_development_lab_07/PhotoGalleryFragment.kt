@@ -9,7 +9,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.SearchView
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -75,7 +75,7 @@ class PhotoGalleryFragment : Fragment() {
 
                 val searchItem: MenuItem =
                     menu.findItem(R.id.menu_item_search)
-                val searchView = searchItem.actionView
+                val searchView = searchItem.actionView //тут проблема
                         as SearchView
                 searchView.apply {
                     setOnQueryTextListener(object :
