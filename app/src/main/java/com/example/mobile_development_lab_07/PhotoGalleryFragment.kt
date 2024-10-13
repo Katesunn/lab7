@@ -17,10 +17,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
 import com.squareup.picasso.Picasso
 
 private const val TAG = "PhotoGalleryFragment"
@@ -35,17 +31,7 @@ class PhotoGalleryFragment : Fragment() {
         super.onCreate(savedInstanceState)
         photoGalleryViewModel = ViewModelProvider(this)[PhotoGalleryViewModel::class.java]
 
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.UNMETERED)
-            .build()
 
-        val workRequest = OneTimeWorkRequest
-            .Builder(PollWorker::class.java)
-            .setConstraints(constraints)
-            .build()
-        // Используем новый метод с контекстом
-        WorkManager.getInstance(requireContext())
-            .enqueue(workRequest)
     }
 
     override fun onCreateView(
@@ -99,6 +85,15 @@ class PhotoGalleryFragment : Fragment() {
                         }
                     })
                 }
+
+                val toggleItem = menu.findItem(R.id.menu_item_toggle_polling)
+                val isPolling = QueryPreferences.isPolling(requireContext())
+                val toggleItemTitle = if (isPolling) {
+                    R.string.stop_polling
+                } else {
+                    R.string.start_polling
+                }
+                toggleItem.setTitle(toggleItemTitle)
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
