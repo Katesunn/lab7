@@ -1,17 +1,20 @@
 package com.example.mobile_development_lab_07
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
+import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.mobile_development_lab_07.api.FlickrApi
 import com.example.mobile_development_lab_07.api.FlickrResponse
 import com.example.mobile_development_lab_07.api.PhotoResponse
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.scalars.ScalarsConverterFactory
 
 private const val TAG = "FlickrFetcher"
 class FlickrFetcher {
@@ -65,5 +68,15 @@ class FlickrFetcher {
             }
         })
         return responseLiveData
+    }
+
+    @WorkerThread
+    fun fetchPhoto(url: String): Bitmap? {
+        val response: Response<ResponseBody> =
+            flickrApi.fetchUrlBytes(url).execute()
+        val bitmap =
+            response.body()?.byteStream()?.use(BitmapFactory::decodeStream)
+        Log.i(TAG, "Decoded bitmap=$bitmap from Response=$response")
+        return bitmap
     }
 }
