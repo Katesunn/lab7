@@ -9,6 +9,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar // Импортируем ProgressBar для индикатора загрузки
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -24,29 +25,12 @@ class PhotoGalleryFragment : Fragment() {
 
     private lateinit var photoGalleryViewModel: PhotoGalleryViewModel
     private lateinit var photoRecyclerView: RecyclerView
-//    private lateinit var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>
+    private lateinit var loadingIndicator: ProgressBar // Индикатор загрузки
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-//        retainInstance = true
-//        setHasOptionsMenu(true)
-
-        // Инициализация ViewModel
         photoGalleryViewModel = ViewModelProvider(this)[PhotoGalleryViewModel::class.java]
-
-        // Создание обработчика для основного потока
-//        val responseHandler = Handler(Looper.getMainLooper())
-
-//        thumbnailDownloader = ThumbnailDownloader(responseHandler) { photoHolder, bitmap ->
-//            val drawable = BitmapDrawable(resources, bitmap)
-//            photoHolder.bindDrawable(drawable)
-//        }
-
-//        lifecycle.addObserver(thumbnailDownloader.fragmentLifecycleObserver)
-//        lifecycle.addObserver(thumbnailDownloader)
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,11 +39,10 @@ class PhotoGalleryFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_photo_gallery, container, false)
 
-//        viewLifecycleOwner.lifecycle.addObserver(
-//            thumbnailDownloader.viewLifecycleObserver
-//        )
         photoRecyclerView = view.findViewById(R.id.photo_recycler_view)
         photoRecyclerView.layoutManager = GridLayoutManager(context, 3)
+
+        loadingIndicator = view.findViewById(R.id.loading_indicator) // Инициализация индикатора загрузки
 
         return view
     }
@@ -67,42 +50,42 @@ class PhotoGalleryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val menuHost: MenuHost = requireActivity() // Получаем MenuHost из активности
+        val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                // Инфляция меню из ресурса
                 menuInflater.inflate(R.menu.fragment_photo_gallery, menu)
 
-                val searchItem: MenuItem =
-                    menu.findItem(R.id.menu_item_search)
-                val searchView = searchItem.actionView //тут проблема
-                        as SearchView
+                val searchItem: MenuItem = menu.findItem(R.id.menu_item_search)
+                val searchView = searchItem.actionView as SearchView
+
                 searchView.apply {
-                    setOnQueryTextListener(object :
-                        SearchView.OnQueryTextListener {
-                        override fun
-                                onQueryTextSubmit(queryText: String): Boolean {
-                            Log.d(TAG,
-                                "QueryTextSubmit: $queryText")
+                    setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                        override fun onQueryTextSubmit(queryText: String): Boolean {
+                            Log.d(TAG, "QueryTextSubmit: $queryText")
+
+                            // Скрываем клавиатуру и сворачиваем SearchView
+                            searchView.clearFocus()
+                            searchItem.collapseActionView()
+
+                            // Показываем индикатор загрузки и очищаем RecyclerView
+                            loadingIndicator.visibility = View.VISIBLE
+                            photoRecyclerView.adapter = null
+
+                            // Запускаем запрос на получение фотографий
                             photoGalleryViewModel.fetchPhotos(queryText)
+
                             return true
                         }
-                        override fun
-                                onQueryTextChange(queryText: String): Boolean {
-                            Log.d(TAG,
-                                "QueryTextChange: $queryText")
+
+                        override fun onQueryTextChange(queryText: String): Boolean {
+                            Log.d(TAG, "QueryTextChange: $queryText")
                             return false
                         }
                     })
-
-                    setOnSearchClickListener {
-                        searchView.setQuery(photoGalleryViewModel.searchTerm, false)
-                    }
                 }
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                // Обработка выбора элемента меню
                 return when (menuItem.itemId) {
                     R.id.menu_item_clear -> {
                         photoGalleryViewModel.fetchPhotos("")
@@ -111,35 +94,20 @@ class PhotoGalleryFragment : Fragment() {
                     else -> false
                 }
             }
-        }, viewLifecycleOwner) // Указываем жизненный цикл владельца
+        }, viewLifecycleOwner)
 
         // Наблюдение за LiveData из ViewModel
         photoGalleryViewModel.galleryItemLiveData.observe(viewLifecycleOwner) { galleryItems ->
+            // Скрываем индикатор загрузки после получения данных
+            loadingIndicator.visibility = View.GONE
+
+            // Устанавливаем адаптер для RecyclerView с новыми данными
             photoRecyclerView.adapter = PhotoAdapter(galleryItems)
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        // Очистка запросов из очереди при уничтожении фрагмента
-        //thumbnailDownloader.clearQueue()
-
-        //lifecycle.removeObserver(thumbnailDownloader.fragmentLifecycleObserver)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-//        viewLifecycleOwner.lifecycle.removeObserver(
-//            thumbnailDownloader.viewLifecycleObserver
-//        )
-    }
-
     private class PhotoHolder(private val itemImageView: ImageView) : RecyclerView.ViewHolder(itemImageView) {
-//        val bindDrawable: (Drawable) -> Unit = itemImageView::setImageDrawable
-
-        fun bindGalleryItem(galleryItem:
-                            GalleryItem) {
+        fun bindGalleryItem(galleryItem: GalleryItem) {
             Picasso.get()
                 .load(galleryItem.url)
                 .placeholder(R.drawable.bill_up_close)
@@ -149,15 +117,9 @@ class PhotoGalleryFragment : Fragment() {
 
     private inner class PhotoAdapter(private val galleryItems: List<GalleryItem>) : RecyclerView.Adapter<PhotoHolder>() {
 
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int
-        ): PhotoHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoHolder {
             val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.list_item_gallery,
-                    parent,
-                    false
-                ) as ImageView
+                .inflate(R.layout.list_item_gallery, parent, false) as ImageView
             return PhotoHolder(view)
         }
 
@@ -165,13 +127,7 @@ class PhotoGalleryFragment : Fragment() {
 
         override fun onBindViewHolder(holder: PhotoHolder, position: Int) {
             val galleryItem = galleryItems[position]
-//            val placeholder: Drawable = ContextCompat.getDrawable(requireContext(), R.drawable.bill_up_close) ?: ColorDrawable()
-//            holder.bindDrawable(placeholder)
-//            thumbnailDownloader.queueThumbnail(holder, galleryItem.url)
             holder.bindGalleryItem(galleryItem)
-            // Здесь можно установить фактическое изображение из galleryItem.
-            // Пример:
-            // Glide.with(holder.itemImageView.context).load(galleryItem.imageUrl).into(holder.itemImageView)
         }
     }
 
