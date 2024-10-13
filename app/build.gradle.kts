@@ -36,6 +36,9 @@ android {
 }
 
 dependencies {
+
+    implementation(libs.androidx.lifecycle.extensions)
+
     implementation(libs.retrofit)
     implementation(libs.converter.gson.v290)
     implementation(libs.gson)
