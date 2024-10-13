@@ -17,9 +17,16 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import com.squareup.picasso.Picasso
+import java.util.concurrent.TimeUnit
 
 private const val TAG = "PhotoGalleryFragment"
+private const val POLL_WORK = "POLL_WORK"
 
 class PhotoGalleryFragment : Fragment() {
 
@@ -102,7 +109,27 @@ class PhotoGalleryFragment : Fragment() {
                         photoGalleryViewModel.fetchPhotos("")
                         true
                     }
-                    else -> false
+                    R.id.menu_item_toggle_polling -> {
+                        val isPolling = QueryPreferences.isPolling(requireContext())
+                        if (isPolling) {
+                            WorkManager.getInstance(requireContext()).cancelUniqueWork(POLL_WORK)
+                            QueryPreferences.setPolling(requireContext(), false)
+                        } else {
+                            val constraints = Constraints.Builder()
+                                .setRequiredNetworkType(NetworkType.UNMETERED)
+                                .build()
+                            val periodicRequest = PeriodicWorkRequest
+                                .Builder(PollWorker::class.java, 15, TimeUnit.MINUTES)
+                                .setConstraints(constraints)
+                                .build()
+                            WorkManager.getInstance(requireContext())
+                                .enqueueUniquePeriodicWork(POLL_WORK, ExistingPeriodicWorkPolicy.KEEP, periodicRequest)
+                            QueryPreferences.setPolling(requireContext(), true)
+                        }
+                        activity?.invalidateOptionsMenu()
+                        true // Указываем, что элемент меню был обработан
+                    }
+                    else -> false // Возвращаем false для элементов меню, которые не обрабатываются
                 }
             }
         }, viewLifecycleOwner)
