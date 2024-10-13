@@ -68,7 +68,18 @@ class ThumbnailDownloader<in T>(
     private fun handleRequest(target: T) {
         val url = requestMap[target] ?: return
         val bitmap = flickrFetcher.fetchPhoto(url) ?: return
+        responseHandler.post(Runnable {
+            if (requestMap[target] != url ||
+                hasQuit) {
+                return@Runnable
+            }
+            requestMap.remove(target)
+            onThumbnailDownloaded(target,
+                bitmap)
+        })
     }
+
+
 
     // Call this method when the LifecycleOwner's state changes
     fun onLifecycleEvent(event: Lifecycle.Event) {
