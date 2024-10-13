@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 class PhotoGalleryFragment : Fragment() {
+
     private lateinit var photoGalleryViewModel: PhotoGalleryViewModel
     private lateinit var photoRecyclerView: RecyclerView
     private lateinit var thumbnailDownloader: ThumbnailDownloader<PhotoHolder>
@@ -24,10 +25,10 @@ class PhotoGalleryFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize ViewModel using ViewModelProvider
+        // Инициализация ViewModel
         photoGalleryViewModel = ViewModelProvider(this)[PhotoGalleryViewModel::class.java]
 
-        // Create a Handler associated with the main thread's Looper
+        // Создание обработчика для основного потока
         val responseHandler = Handler(Looper.getMainLooper())
 
         thumbnailDownloader = ThumbnailDownloader(responseHandler) { photoHolder, bitmap ->
@@ -54,7 +55,7 @@ class PhotoGalleryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Observe LiveData from ViewModel
+        // Наблюдение за LiveData из ViewModel
         photoGalleryViewModel.galleryItemLiveData.observe(viewLifecycleOwner) { galleryItems ->
             photoRecyclerView.adapter = PhotoAdapter(galleryItems)
         }
@@ -63,10 +64,15 @@ class PhotoGalleryFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
 
-        // Clear requests from queue when fragment is destroyed
+        // Очистка запросов из очереди при уничтожении фрагмента
         thumbnailDownloader.clearQueue()
 
         lifecycle.removeObserver(thumbnailDownloader)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Здесь можно добавить дополнительные действия при уничтожении представления фрагмента.
     }
 
     private class PhotoHolder(private val itemImageView: ImageView) : RecyclerView.ViewHolder(itemImageView) {
@@ -88,8 +94,8 @@ class PhotoGalleryFragment : Fragment() {
             holder.bindDrawable(placeholder)
 
             thumbnailDownloader.queueThumbnail(holder, galleryItem.url)
-            // Here you can set the actual image from galleryItem if available.
-            // Example:
+            // Здесь можно установить фактическое изображение из galleryItem.
+            // Пример:
             // Glide.with(holder.itemImageView.context).load(galleryItem.imageUrl).into(holder.itemImageView)
         }
     }

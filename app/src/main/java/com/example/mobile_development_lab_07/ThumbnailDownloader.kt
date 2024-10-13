@@ -25,16 +25,16 @@ class ThumbnailDownloader<in T>(
     private val flickrFetcher = FlickrFetcher()
 
     init {
-        // Start the thread immediately in the init block
+        // Запускаем поток сразу в блоке init
         start()
-        // Add this instance as a lifecycle observer to the provided lifecycle owner
+        // Добавляем этот экземпляр как наблюдатель жизненного цикла
         (responseHandler as? LifecycleOwner)?.lifecycle?.addObserver(this)
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun onLooperPrepared() {
         Log.i(TAG, "Starting background thread")
-        requestHandler = object : Handler(Looper.getMainLooper()) { // Specify the main looper
+        requestHandler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 if (msg.what == MESSAGE_DOWNLOAD) {
                     val target = msg.obj as T
@@ -49,7 +49,7 @@ class ThumbnailDownloader<in T>(
         Log.i(TAG, "Got a URL: $url")
         requestMap[target] = url
 
-        // Ensure requestHandler is initialized before sending messages
+        // Проверяем инициализацию requestHandler перед отправкой сообщений
         if (::requestHandler.isInitialized) {
             requestHandler.obtainMessage(MESSAGE_DOWNLOAD, target).sendToTarget()
         } else {
@@ -60,7 +60,7 @@ class ThumbnailDownloader<in T>(
     private fun handleRequest(target: T) {
         val url = requestMap[target] ?: return
 
-        // Fetch photo asynchronously and handle it in the callback
+        // Асинхронно получаем фото и обрабатываем его в колбэке
         flickrFetcher.fetchPhoto(url).observeForever { bitmap ->
             if (bitmap != null) {
                 responseHandler.post {
@@ -74,7 +74,7 @@ class ThumbnailDownloader<in T>(
         }
     }
 
-    // Custom method to handle lifecycle events manually
+    // Метод для обработки событий жизненного цикла вручную
     fun onLifecycleEvent(event: Lifecycle.Event) {
         when (event) {
             Lifecycle.Event.ON_CREATE -> setup()
@@ -98,10 +98,29 @@ class ThumbnailDownloader<in T>(
         return super.quit()
     }
 
-    // Clear requests from queue when the lifecycle owner is destroyed
+    // Очистка запросов из очереди при уничтожении жизненного цикла владельца
     fun clearQueue() {
         Log.i(TAG, "Clearing all requests from queue")
         requestHandler.removeMessages(MESSAGE_DOWNLOAD)
         requestMap.clear()
+    }
+
+    // Реализация fragmentLifecycleObserver для управления жизненным циклом фрагмента
+    val fragmentLifecycleObserver: LifecycleObserver = object : LifecycleObserver {
+        fun setup() {
+            Log.i(TAG, "Setting up fragment lifecycle observer")
+            start()
+        }
+
+        fun tearDown() {
+            Log.i(TAG, "Destroying fragment lifecycle observer")
+            quit()
+        }
+
+        fun clearQueue() {
+            Log.i(TAG, "Clearing all requests from queue in fragment lifecycle observer")
+            requestHandler.removeMessages(MESSAGE_DOWNLOAD)
+            requestMap.clear()
+        }
     }
 }
