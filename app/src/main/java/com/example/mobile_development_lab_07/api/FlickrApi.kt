@@ -39,22 +39,23 @@ interface FlickrApi {
     // Fetch photos using query parameters
     @GET("services/rest/")
     fun fetchPhotos(
-        @Query("method") method: String = "flickr.photos.search",
+        @Query("method") method: String = "flickr.interestingness.getList",
         @Query("api_key") apiKey: String = "08d7a58a4f8a9d0e7842cc9caebcd60a",
         @Query("format") format: String = "json",
         @Query("nojsoncallback") noJsonCallback: Int = 1,
-        @Query("safe_search") safeSearch: Int = 1,
-        @Query("text") text: String = "cat",
         @Query("extras") extras: String = "url_s"
     ): Call<FlickrResponse>
-
 //    fun fetchPhotos(
-//        @Query("method") method: String = "flickr.interestingness.getList",
+//        @Query("method") method: String = "flickr.photos.search",
 //        @Query("api_key") apiKey: String = "08d7a58a4f8a9d0e7842cc9caebcd60a",
 //        @Query("format") format: String = "json",
 //        @Query("nojsoncallback") noJsonCallback: Int = 1,
+//        @Query("safe_search") safeSearch: Int = 1,
+//        @Query("text") text: String = "cat",
 //        @Query("extras") extras: String = "url_s"
 //    ): Call<FlickrResponse>
+
+//
 
     @GET
     fun fetchUrlBytes(@Url url: String): Call<ResponseBody>
