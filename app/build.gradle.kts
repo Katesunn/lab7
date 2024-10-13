@@ -38,9 +38,7 @@ android {
 dependencies {
 
     implementation (libs.picasso)
-
-    implementation(libs.work.runtime)
-
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.lifecycle.extensions)
     implementation(libs.androidx.lifecycle.livedata.ktx.v286)
     implementation(libs.androidx.preference.ktx)
