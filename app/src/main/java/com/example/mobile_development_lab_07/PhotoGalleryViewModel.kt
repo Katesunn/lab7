@@ -8,6 +8,6 @@ class PhotoGalleryViewModel : ViewModel() {
             LiveData<List<GalleryItem>>
     init {
         galleryItemLiveData =
-            FlickrFetcher().fetchPhotos()
+            FlickrFetcher().searchPhotos("planets")
     }
 }

@@ -66,7 +66,7 @@ interface FlickrApi {
 
     @GET("services/rest/")
     fun searchPhotos(
-        @Query("method") method: String = "flickr.interestingness.getList",
+        @Query("method") method: String = "flickr.photos.search",
         @Query("text") text: String,
     ): Call<FlickrResponse>
 }
