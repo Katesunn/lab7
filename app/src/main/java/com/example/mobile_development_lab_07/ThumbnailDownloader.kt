@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 
 private const val TAG = "ThumbnailDownloader"
 
@@ -24,6 +23,8 @@ class ThumbnailDownloader<in T>(private val lifecycleOwner: LifecycleOwner) : Ha
 
     fun setup() {
         Log.i(TAG, "Starting background thread")
+        start()
+        looper
     }
 
     fun tearDown() {
