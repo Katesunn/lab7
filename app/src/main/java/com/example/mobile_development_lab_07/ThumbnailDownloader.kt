@@ -1,5 +1,6 @@
 package com.example.mobile_development_lab_07
 
+import android.annotation.SuppressLint
 import android.os.HandlerThread
 import android.util.Log
 import androidx.lifecycle.Lifecycle
@@ -7,6 +8,7 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import java.util.concurrent.ConcurrentHashMap
 import android.os.Handler
+import android.os.Message
 
 
 private const val TAG = "ThumbnailDownloader"
@@ -21,11 +23,6 @@ class ThumbnailDownloader<in T>(private val lifecycleOwner: LifecycleOwner) : Ha
     private val requestMap = ConcurrentHashMap<T, String>()
 
     private val flickrFetcher = FlickrFetcher()
-
-    override fun quit(): Boolean {
-        hasQuit = true
-        return super.quit()
-    }
 
     init {
         lifecycleOwner.lifecycle.addObserver(this)
@@ -42,10 +39,34 @@ class ThumbnailDownloader<in T>(private val lifecycleOwner: LifecycleOwner) : Ha
         quit()
     }
 
+    override fun quit(): Boolean {
+        hasQuit = true
+        return super.quit()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    @SuppressLint("HandlerLeak")
+    override fun onLooperPrepared() {
+        requestHandler = object : Handler() {
+            override fun handleMessage(msg: Message) {
+                if (msg.what == MESSAGE_DOWNLOAD) {
+                    val target = msg.obj as T
+                    Log.i(TAG, "Got a request for URL: ${requestMap[target]}")
+                    handleRequest(target)
+                }
+            }
+        }
+    }
+
     fun queueThumbnail(target: T, url: String) {
         Log.i(TAG, "Got a URL: $url")
         requestMap[target] = url
         requestHandler.obtainMessage(MESSAGE_DOWNLOAD, target).sendToTarget()
+    }
+
+    private fun handleRequest(target: T) {
+        val url = requestMap[target] ?: return
+        val bitmap = flickrFetcher.fetchPhoto(url) ?: return
     }
 
     // Call this method when the LifecycleOwner's state changes
