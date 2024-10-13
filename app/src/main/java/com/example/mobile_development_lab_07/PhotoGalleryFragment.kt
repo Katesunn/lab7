@@ -93,7 +93,12 @@ class PhotoGalleryFragment : Fragment() {
                                 "QueryTextChange: $queryText")
                             return false
                         }
-                    })}
+                    })
+
+                    setOnSearchClickListener {
+                        searchView.setQuery(photoGalleryViewModel.searchTerm, false)
+                    }
+                }
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

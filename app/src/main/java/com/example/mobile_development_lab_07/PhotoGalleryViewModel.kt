@@ -9,6 +9,8 @@ import androidx.lifecycle.switchMap // Импортируем switchMap
 class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app) {
     private val flickrFetcher = FlickrFetcher()
     private val mutableSearchTerm = MutableLiveData<String>()
+    val searchTerm: String
+        get() = mutableSearchTerm.value ?: ""
 
     // Используем switchMap напрямую на mutableSearchTerm
     val galleryItemLiveData: LiveData<List<GalleryItem>> = mutableSearchTerm.switchMap { searchTerm ->
