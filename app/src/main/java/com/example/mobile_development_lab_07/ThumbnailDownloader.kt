@@ -107,6 +107,7 @@ class ThumbnailDownloader<in T>(
 
     // Реализация fragmentLifecycleObserver для управления жизненным циклом фрагмента
     val fragmentLifecycleObserver: LifecycleObserver = object : LifecycleObserver {
+
         fun setup() {
             Log.i(TAG, "Setting up fragment lifecycle observer")
             start()
@@ -119,6 +120,16 @@ class ThumbnailDownloader<in T>(
 
         fun clearQueue() {
             Log.i(TAG, "Clearing all requests from queue in fragment lifecycle observer")
+            requestHandler.removeMessages(MESSAGE_DOWNLOAD)
+            requestMap.clear()
+        }
+    }
+
+    // Реализация viewLifecycleObserver для управления жизненным циклом представления фрагмента
+    val viewLifecycleObserver: LifecycleObserver = object : LifecycleObserver {
+
+        fun clearQueue() {
+            Log.i(TAG, "Clearing all requests from queue in view lifecycle observer")
             requestHandler.removeMessages(MESSAGE_DOWNLOAD)
             requestMap.clear()
         }
