@@ -9,7 +9,23 @@ private const val TAG = "PollWorker"
 class PollWorker(private val context: Context, workerParams: WorkerParameters)
     : Worker(context, workerParams) {
     override fun doWork(): Result {
-        Log.i(TAG, "Work request triggered")
+        val query = QueryPreferences.getStoredQuery(context)
+        val lastResultId = QueryPreferences.getLastResultId(context)
+        val items: List<GalleryItem> =
+            if (query.isEmpty()) {
+                FlickrFetcher().fetchPhotosRequest()
+                .execute()
+                .body()
+                ?.photos
+                ?.galleryItems
+            } else {
+                FlickrFetcher().searchPhotosRequest(
+                query)
+                .execute()
+                .body()
+                ?.photos
+                ?.galleryItems
+            } ?: emptyList()
         return Result.success()
     }
 }

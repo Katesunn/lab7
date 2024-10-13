@@ -37,7 +37,7 @@ class FlickrFetcher {
         flickrApi = retrofit.create(FlickrApi::class.java)
     }
 
-    private fun fetchPhotosRequest(): Call<FlickrResponse> {
+    fun fetchPhotosRequest(): Call<FlickrResponse> {
         return flickrApi.fetchPhotos()
     }
 
