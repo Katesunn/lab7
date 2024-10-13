@@ -1,11 +1,12 @@
 package com.example.mobile_development_lab_07
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.switchMap // Импортируем switchMap
 
-class PhotoGalleryViewModel : ViewModel() {
+class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app) {
     private val flickrFetcher = FlickrFetcher()
     private val mutableSearchTerm = MutableLiveData<String>()
 
@@ -19,6 +20,7 @@ class PhotoGalleryViewModel : ViewModel() {
     }
 
     fun fetchPhotos(query: String = "") {
+        QueryPreferences.setStoredQuery(app, query)
         mutableSearchTerm.value = query
     }
 }

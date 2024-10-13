@@ -99,12 +99,8 @@ class PhotoGalleryFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 // Обработка выбора элемента меню
                 return when (menuItem.itemId) {
-                    R.id.menu_item_search -> {
-                        Log.i(TAG, "Search selected")
-                        true
-                    }
                     R.id.menu_item_clear -> {
-                        Log.i(TAG, "Clear selected")
+                        photoGalleryViewModel.fetchPhotos("")
                         true
                     }
                     else -> false
