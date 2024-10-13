@@ -2,6 +2,7 @@ package com.example.mobile_development_lab_07
 
 import android.app.PendingIntent
 import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -9,26 +10,25 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 
 private const val TAG = "PollWorker"
-class PollWorker(private val context: Context, workerParams: WorkerParameters)
-    : Worker(context, workerParams) {
+
+class PollWorker(private val context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
     override fun doWork(): Result {
         val query = QueryPreferences.getStoredQuery(context)
         val lastResultId = QueryPreferences.getLastResultId(context)
-        val items: List<GalleryItem> =
-            if (query.isEmpty()) {
-                FlickrFetcher().fetchPhotosRequest()
+
+        val items: List<GalleryItem> = if (query.isEmpty()) {
+            FlickrFetcher().fetchPhotosRequest()
                 .execute()
                 .body()
                 ?.photos
-                ?.galleryItems
-            } else {
-                FlickrFetcher().searchPhotosRequest(
-                query)
+                ?.galleryItems ?: emptyList()
+        } else {
+            FlickrFetcher().searchPhotosRequest(query)
                 .execute()
                 .body()
                 ?.photos
-                ?.galleryItems
-            } ?: emptyList()
+                ?.galleryItems ?: emptyList()
+        }
 
         if (items.isEmpty()) {
             return Result.success()
@@ -39,27 +39,36 @@ class PollWorker(private val context: Context, workerParams: WorkerParameters)
         if (resultId == lastResultId) {
             Log.i(TAG, "Got an old result: $resultId")
         } else {
-            Log.i(TAG, "Got a new result:$resultId")
+            Log.i(TAG, "Got a new result: $resultId")
             QueryPreferences.setLastResultId(context, resultId)
 
-            val intent =
-                PhotoGalleryActivity.newIntent(context)
-            val pendingIntent =
-                PendingIntent.getActivity(context, 0, intent, 0)
+            val intent = PhotoGalleryActivity.newIntent(context)
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE // Указываем флаги мутабельности
+            )
+
+            // Проверка разрешения на отправку уведомлений
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                if (context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    // Запросите разрешение, если оно не предоставлено
+                    return Result.failure() // Завершите работу, если разрешение не получено
+                }
+            }
+
             val resources = context.resources
-            val notification =
-                NotificationCompat
-                    .Builder(context, NOTIFICATION_CHANNEL_ID)
-                    .setTicker(resources.getString(R.string.new_pictures_title))
-                    .setSmallIcon(android.R.drawable.ic_menu_report_image)
-                    .setContentTitle(resources.getString(R.string.new_pictures_title))
-                    .setContentText(resources.getString(R.string.new_pictures_text))
-                    .setContentIntent(pendingIntent
-                    )
-                    .setAutoCancel(true)
-                    .build()
-            val notificationManager =
-                NotificationManagerCompat.from(context)
+            val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+                .setTicker(resources.getString(R.string.new_pictures_title))
+                .setSmallIcon(android.R.drawable.ic_menu_report_image)
+                .setContentTitle(resources.getString(R.string.new_pictures_title))
+                .setContentText(resources.getString(R.string.new_pictures_text))
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build()
+
+            val notificationManager = NotificationManagerCompat.from(context)
             notificationManager.notify(0, notification)
         }
 
