@@ -34,7 +34,7 @@ class FlickrFetcher {
         val responseLiveData: MutableLiveData<List<GalleryItem>> = MutableLiveData()
 
         // Call fetchPhotos with the required parameters
-        val flickrRequest: Call<FlickrResponse> = flickrApi.fetchPhotos()
+        val flickrRequest: Call<FlickrResponse> = flickrApi.fetchPhotos(apiKey = "YOUR_API_KEY_HERE") // Ensure you pass your API key
 
         flickrRequest.enqueue(object : Callback<FlickrResponse> {
             override fun onFailure(call: Call<FlickrResponse>, t: Throwable) {
@@ -48,7 +48,7 @@ class FlickrFetcher {
                 Log.d(TAG, "Response received")
 
                 val flickrResponse: FlickrResponse? = response.body()
-                val photoResponse: PhotoResponse? = flickrResponse?.photos
+                val photoResponse: PhotoResponse? = flickrResponse?.photos //at com.example.mobile_development_lab_07.FlickrFetcher$fetchPhotos$1.onResponse(FlickrFetcher.kt:51)
 
                 // Get gallery items or an empty list if null
                 var galleryItems: List<GalleryItem> = photoResponse?.galleryItems ?: emptyList()
@@ -63,10 +63,30 @@ class FlickrFetcher {
     }
 
     @WorkerThread
-    fun fetchPhoto(url: String): Bitmap? {
-        val response: Response<ResponseBody> = flickrApi.fetchUrlBytes(url).execute()
-        val bitmap = response.body()?.byteStream()?.use(BitmapFactory::decodeStream)
-        Log.i(TAG, "Decoded bitmap=$bitmap from Response=$response")
-        return bitmap
+    fun fetchPhoto(url: String): LiveData<Bitmap?> {
+        val bitmapLiveData = MutableLiveData<Bitmap?>()
+
+        // Use enqueue for asynchronous call instead of execute()
+        flickrApi.fetchUrlBytes(url).enqueue(object : Callback<ResponseBody> {
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e(TAG, "Failed to fetch photo", t)
+                bitmapLiveData.value = null // Handle failure case
+            }
+
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    response.body()?.byteStream()?.use { inputStream ->
+                        val bitmap = BitmapFactory.decodeStream(inputStream)
+                        Log.i(TAG, "Decoded bitmap=$bitmap from URL=$url")
+                        bitmapLiveData.value = bitmap // Set the decoded Bitmap to LiveData
+                    }
+                } else {
+                    Log.e(TAG, "Error fetching photo: ${response.errorBody()?.string()}")
+                    bitmapLiveData.value = null // Handle error case
+                }
+            }
+        })
+
+        return bitmapLiveData // Return LiveData for the fetched Bitmap
     }
 }
