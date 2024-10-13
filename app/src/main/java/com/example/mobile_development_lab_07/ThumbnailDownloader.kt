@@ -1,5 +1,3 @@
-
-
 package com.example.mobile_development_lab_07
 
 import android.graphics.Bitmap
@@ -98,5 +96,12 @@ class ThumbnailDownloader<in T>(
     override fun quit(): Boolean {
         hasQuit = true
         return super.quit()
+    }
+
+    // Clear requests from queue when the lifecycle owner is destroyed
+    fun clearQueue() {
+        Log.i(TAG, "Clearing all requests from queue")
+        requestHandler.removeMessages(MESSAGE_DOWNLOAD)
+        requestMap.clear()
     }
 }
