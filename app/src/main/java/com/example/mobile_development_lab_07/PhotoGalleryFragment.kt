@@ -72,6 +72,7 @@ class PhotoGalleryFragment : Fragment() {
             val placeholder: Drawable = ContextCompat.getDrawable(requireContext(), R.drawable.bill_up_close) ?: ColorDrawable()
             holder.bindDrawable(placeholder)
 
+            thumbnailDownloader.queueThumbnail(holder, galleryItem.url)
             // Here you can set the actual image from galleryItem if available.
             // Example:
             // Glide.with(holder.itemImageView.context).load(galleryItem.imageUrl).into(holder.itemImageView)
