@@ -6,7 +6,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import java.util.concurrent.ConcurrentHashMap
-import java.util.logging.Handler
+import android.os.Handler
+
 
 private const val TAG = "ThumbnailDownloader"
 private const val MESSAGE_DOWNLOAD = 0
@@ -43,6 +44,8 @@ class ThumbnailDownloader<in T>(private val lifecycleOwner: LifecycleOwner) : Ha
 
     fun queueThumbnail(target: T, url: String) {
         Log.i(TAG, "Got a URL: $url")
+        requestMap[target] = url
+        requestHandler.obtainMessage(MESSAGE_DOWNLOAD, target).sendToTarget()
     }
 
     // Call this method when the LifecycleOwner's state changes
