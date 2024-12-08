@@ -1,72 +1,30 @@
+// Указываем пакет, в котором находится наш интерфейс
 package com.example.mobile_development_lab_07.api
 
-//import com.example.mobile_development_lab_07.api.FlickrResponse
-//import okhttp3.ResponseBody
-//import retrofit2.Call
-//import retrofit2.http.GET
-//import retrofit2.http.Query
-//import retrofit2.http.Url
-//
-//private const val API_KEY : String = "08d7a58a4f8a9d0e7842cc9caebcd60a"
-//private const val FORMAT : String = "json"
-//private const val NOJSONCALLBACK : String = "1"
-//private const val EXTRAS : String = "url_s"
-//
-//interface com.example.mobile_development_lab_07.api.FlickrApi {
-//    // Fetch photos using query parameters
-//    @GET(
-//        "services/rest/"+
-//                "?method=flickr.interestingness.getList" +
-//                "&api_key=$API_KEY" +
-//                "&format=$FORMAT" +
-//                "&nojsoncallback=$NOJSONCALLBACK" +
-//                "&extras=$EXTRAS"
-//    )
-//    fun fetchPhotos(): Call<FlickrResponse>
-//
-//    // Fetch URL bytes for a given URL
-//    @GET
-//    fun fetchUrlBytes(@Url url: String): Call<ResponseBody>
-//}
-
+// Импортируем необходимые классы из библиотек
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.http.Url
 
+// Определяем интерфейс FlickrApi для работы с API Flickr
 interface FlickrApi {
-    @GET("services/rest/")
+
+    // Метод для получения списка интересных фотографий
+    @GET("services/rest/") // Указываем HTTP метод и путь к ресурсу
     fun fetchPhotos(
-        @Query("method") method: String = "flickr.interestingness.getList"
-    ): Call<FlickrResponse>
-    // Fetch photos using query parameters
-//    @GET("services/rest/")
-//    fun fetchPhotos(
-//        @Query("method") method: String = "flickr.interestingness.getList",
-//        @Query("api_key") apiKey: String = "08d7a58a4f8a9d0e7842cc9caebcd60a",
-//        @Query("format") format: String = "json",
-//        @Query("nojsoncallback") noJsonCallback: Int = 1,
-//        @Query("extras") extras: String = "url_s"
-//    ): Call<FlickrResponse>
-//    fun fetchPhotos(
-//        @Query("method") method: String = "flickr.photos.search",
-//        @Query("api_key") apiKey: String = "08d7a58a4f8a9d0e7842cc9caebcd60a",
-//        @Query("format") format: String = "json",
-//        @Query("nojsoncallback") noJsonCallback: Int = 1,
-//        @Query("safe_search") safeSearch: Int = 1,
-//        @Query("text") text: String = "cat",
-//        @Query("extras") extras: String = "url_s"
-//    ): Call<FlickrResponse>
+        @Query("method") method: String = "flickr.interestingness.getList" // Параметр метода по умолчанию
+    ): Call<FlickrResponse> // Возвращаем объект Call, который содержит ответ от сервера
 
-//
+    // Метод для получения байтов по указанному URL
+    @GET // Указываем HTTP метод
+    fun fetchUrlBytes(@Url url: String): Call<ResponseBody> // Возвращаем объект Call с телом ответа
 
-    @GET
-    fun fetchUrlBytes(@Url url: String): Call<ResponseBody>
-
-    @GET("services/rest/")
+    // Метод для поиска фотографий по текстовому запросу
+    @GET("services/rest/") // Указываем HTTP метод и путь к ресурсу
     fun searchPhotos(
-        @Query("method") method: String = "flickr.photos.search",
-        @Query("text") text: String,
-    ): Call<FlickrResponse>
+        @Query("method") method: String = "flickr.photos.search", // Параметр метода по умолчанию для поиска
+        @Query("text") text: String, // Параметр текстового запроса для поиска фотографий
+    ): Call<FlickrResponse> // Возвращаем объект Call с ответом от сервера
 }

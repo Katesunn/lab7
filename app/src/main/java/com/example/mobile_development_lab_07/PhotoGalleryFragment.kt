@@ -1,3 +1,4 @@
+// Указываем пакет, в котором находится наш класс
 package com.example.mobile_development_lab_07
 
 import android.os.Bundle
@@ -22,23 +23,23 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import com.squareup.picasso.Picasso
+import com.squareup.picasso.Picasso // Библиотека для загрузки изображений
 import java.util.concurrent.TimeUnit
 
-private const val TAG = "PhotoGalleryFragment"
-private const val POLL_WORK = "POLL_WORK"
+private const val TAG = "PhotoGalleryFragment" // Тег для логирования
+private const val POLL_WORK = "POLL_WORK" // Идентификатор для работы опроса
 
 class PhotoGalleryFragment : Fragment() {
 
-    private lateinit var photoGalleryViewModel: PhotoGalleryViewModel
-    private lateinit var photoRecyclerView: RecyclerView
+    private lateinit var photoGalleryViewModel: PhotoGalleryViewModel // ViewModel для управления данными галереи
+    private lateinit var photoRecyclerView: RecyclerView // RecyclerView для отображения фотографий
     private lateinit var loadingIndicator: ProgressBar // Индикатор загрузки
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onCreate(savedInstanceState) // Вызов метода родительского класса для выполнения стандартной инициализации
+
+        // Инициализация ViewModel, которая будет использоваться для получения данных о фотографиях
         photoGalleryViewModel = ViewModelProvider(this)[PhotoGalleryViewModel::class.java]
-
-
     }
 
     override fun onCreateView(
@@ -46,110 +47,119 @@ class PhotoGalleryFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // Инфляция макета фрагмента из XML-файла
         val view = inflater.inflate(R.layout.fragment_photo_gallery, container, false)
 
+        // Инициализация RecyclerView и установка менеджера компоновки в виде сетки с 3 столбцами
         photoRecyclerView = view.findViewById(R.id.photo_recycler_view)
         photoRecyclerView.layoutManager = GridLayoutManager(context, 3)
 
-        loadingIndicator = view.findViewById(R.id.loading_indicator) // Инициализация индикатора загрузки
+        // Инициализация индикатора загрузки из макета фрагмента
+        loadingIndicator = view.findViewById(R.id.loading_indicator)
 
-        return view
+        return view // Возвращаем инфлированный вид фрагмента
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        super.onViewCreated(view, savedInstanceState) // Вызов метода родительского класса
 
+        // Получаем ссылку на MenuHost для добавления меню в фрагменте
         val menuHost: MenuHost = requireActivity()
+
+        // Добавляем MenuProvider для управления меню в этом фрагменте
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                menuInflater.inflate(R.menu.fragment_photo_gallery, menu)
+                menuInflater.inflate(R.menu.fragment_photo_gallery, menu) // Инфляция меню из ресурса
 
-                val searchItem: MenuItem = menu.findItem(R.id.menu_item_search)
-                val searchView = searchItem.actionView as SearchView
+                val searchItem: MenuItem = menu.findItem(R.id.menu_item_search) // Поиск элемента меню по ID
+                val searchView = searchItem.actionView as SearchView // Получаем SearchView из элемента меню
 
                 searchView.apply {
                     setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                         override fun onQueryTextSubmit(queryText: String): Boolean {
-                            Log.d(TAG, "QueryTextSubmit: $queryText")
+                            Log.d(TAG, "QueryTextSubmit: $queryText") // Логируем текст запроса
 
-                            // Скрываем клавиатуру и сворачиваем SearchView
+                            // Скрываем клавиатуру и сворачиваем SearchView после отправки запроса
                             searchView.clearFocus()
                             searchItem.collapseActionView()
 
-                            // Показываем индикатор загрузки и очищаем RecyclerView
+                            // Показываем индикатор загрузки и очищаем RecyclerView перед новым запросом
                             loadingIndicator.visibility = View.VISIBLE
                             photoRecyclerView.adapter = null
 
-                            // Запускаем запрос на получение фотографий
+                            // Запускаем запрос на получение фотографий с введенным текстом запроса
                             photoGalleryViewModel.fetchPhotos(queryText)
 
-                            return true
+                            return true // Указываем, что событие обработано успешно
                         }
 
                         override fun onQueryTextChange(queryText: String): Boolean {
-                            Log.d(TAG, "QueryTextChange: $queryText")
-                            return false
+                            Log.d(TAG, "QueryTextChange: $queryText") // Логируем изменения текста запроса
+                            return false // Возвращаем false, если не обрабатываем изменения текста здесь
                         }
                     })
                 }
 
-                val toggleItem = menu.findItem(R.id.menu_item_toggle_polling)
-                val isPolling = QueryPreferences.isPolling(requireContext())
+                val toggleItem = menu.findItem(R.id.menu_item_toggle_polling) // Получаем элемент меню для переключения опроса
+                val isPolling = QueryPreferences.isPolling(requireContext()) // Проверяем текущее состояние опроса
+
+                // Устанавливаем заголовок элемента меню в зависимости от состояния опроса (включен/выключен)
                 val toggleItemTitle = if (isPolling) {
                     R.string.stop_polling
                 } else {
                     R.string.start_polling
                 }
-                toggleItem.setTitle(toggleItemTitle)
+                toggleItem.setTitle(toggleItemTitle) // Устанавливаем заголовок элемента меню
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.menu_item_clear -> {
-                        photoGalleryViewModel.fetchPhotos("")
+                        photoGalleryViewModel.fetchPhotos("") // Запрос на получение всех фотографий (очистка поиска)
                         true
                     }
                     R.id.menu_item_toggle_polling -> {
                         val isPolling = QueryPreferences.isPolling(requireContext())
                         if (isPolling) {
-                            WorkManager.getInstance(requireContext()).cancelUniqueWork(POLL_WORK)
+                            WorkManager.getInstance(requireContext()).cancelUniqueWork(POLL_WORK) // Отменяем работу опроса
                             QueryPreferences.setPolling(requireContext(), false)
                         } else {
                             val constraints = Constraints.Builder()
                                 .setRequiredNetworkType(NetworkType.UNMETERED)
                                 .build()
+
                             val periodicRequest = PeriodicWorkRequest
                                 .Builder(PollWorker::class.java, 15, TimeUnit.MINUTES)
                                 .setConstraints(constraints)
                                 .build()
+
                             WorkManager.getInstance(requireContext())
                                 .enqueueUniquePeriodicWork(POLL_WORK, ExistingPeriodicWorkPolicy.KEEP, periodicRequest)
+
                             QueryPreferences.setPolling(requireContext(), true)
                         }
-                        activity?.invalidateOptionsMenu()
-                        true // Указываем, что элемент меню был обработан
+                        activity?.invalidateOptionsMenu() // Обновляем меню активности после изменения состояния опроса
+                        true
                     }
                     else -> false // Возвращаем false для элементов меню, которые не обрабатываются
                 }
             }
         }, viewLifecycleOwner)
 
-        // Наблюдение за LiveData из ViewModel
+        // Наблюдение за LiveData из ViewModel для обновления UI при изменении данных о фотографиях
         photoGalleryViewModel.galleryItemLiveData.observe(viewLifecycleOwner) { galleryItems ->
-            // Скрываем индикатор загрузки после получения данных
-            loadingIndicator.visibility = View.GONE
+            loadingIndicator.visibility = View.GONE // Скрываем индикатор загрузки после получения данных
 
-            // Устанавливаем адаптер для RecyclerView с новыми данными
-            photoRecyclerView.adapter = PhotoAdapter(galleryItems)
+            photoRecyclerView.adapter = PhotoAdapter(galleryItems) // Устанавливаем адаптер для RecyclerView с новыми данными
         }
     }
 
     private class PhotoHolder(private val itemImageView: ImageView) : RecyclerView.ViewHolder(itemImageView) {
         fun bindGalleryItem(galleryItem: GalleryItem) {
-            Picasso.get()
-                .load(galleryItem.url)
-                .placeholder(R.drawable.bill_up_close)
-                .into(itemImageView)
+            Picasso.get()  // Используем библиотеку Picasso для загрузки изображения
+                .load(galleryItem.url)  // Загружаем изображение по URL из объекта GalleryItem
+                .placeholder(R.drawable.bill_up_close)  // Устанавливаем изображение-заполнитель во время загрузки
+                .into(itemImageView)  // Загружаем изображение в ImageView
         }
     }
 
@@ -157,19 +167,19 @@ class PhotoGalleryFragment : Fragment() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoHolder {
             val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.list_item_gallery, parent, false) as ImageView
-            return PhotoHolder(view)
+                .inflate(R.layout.list_item_gallery, parent, false) as ImageView  // Инфляция макета элемента списка и преобразование в ImageView
+            return PhotoHolder(view)  // Возвращаем новый экземпляр PhotoHolder с инфлированным представлением
         }
 
-        override fun getItemCount(): Int = galleryItems.size
+        override fun getItemCount(): Int = galleryItems.size  // Возвращаем количество элементов в списке
 
         override fun onBindViewHolder(holder: PhotoHolder, position: Int) {
-            val galleryItem = galleryItems[position]
-            holder.bindGalleryItem(galleryItem)
+            val galleryItem = galleryItems[position]  // Получаем элемент галереи по позиции
+            holder.bindGalleryItem(galleryItem)  // Привязываем элемент к держателю представления
         }
     }
 
     companion object {
-        fun newInstance() = PhotoGalleryFragment()
+        fun newInstance() = PhotoGalleryFragment()  // Создание нового экземпляра фрагмента
     }
 }
