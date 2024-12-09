@@ -121,12 +121,13 @@ class FlickrFetcher {
             ) {
                 if (response.isSuccessful) { // Проверяем успешность ответа
                     Log.e(TAG, "Success fetching photo info: ${response.raw()}") // Логируем ошибку при получении изображения
-                    Log.e(TAG, "Body: ${response.body()!!.photo?.id}") // Логируем ошибку при получении изображения
-                    Log.e(TAG, "Body: ${response.body()!!.photo?.title?.content}") // Логируем ошибку при получении изображения
-                    Log.e(TAG, "Body: ${response.body()!!.photo?.tags}") // Логируем ошибку при получении изображения
-                    Log.e(TAG, "Body: ${response.body()!!.photo?.dates?.taken}") // Логируем ошибку при получении изображения
-                    Log.e(TAG, "Body: ${response.body()!!.photo?.owner?.realname}") // Логируем ошибку при получении изображения
-                    Log.e(TAG, "Body: ${response.body()!!.photo?.urlS?.urlList}") // Логируем ошибку при получении изображения
+                    Log.e(TAG, "Id: ${response.body()!!.photo?.id}") // Логируем ошибку при получении изображения
+                    Log.e(TAG, "Content: ${response.body()!!.photo?.title?.content}") // Логируем ошибку при получении изображения
+                    Log.e(TAG, "Tags: ${response.body()!!.photo?.tags}") // Логируем ошибку при получении изображения
+                    Log.e(TAG, "Taken at: ${response.body()!!.photo?.dates?.taken}") // Логируем ошибку при получении изображения
+                    Log.e(TAG, "Real name of owner: ${response.body()!!.photo?.owner?.realname}") // Логируем ошибку при получении изображения
+                    Log.e(TAG, "Url list: ${response.body()!!.photo?.urlS?.urlList}") // Логируем ошибку при получении изображения
+                    Log.e(TAG, "GalleryItem: ${response.body()!!.photo?.getGalleryItem()}") // Логируем ошибку при получении изображения
 
 //                    Log.e(TAG, "Body: ${response.body()!!.photo?.galleryItem}") // Логируем ошибку при получении изображения
                 } else {
