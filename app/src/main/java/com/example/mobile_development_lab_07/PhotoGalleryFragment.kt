@@ -190,6 +190,10 @@ class PhotoGalleryFragment : Fragment() {
                     // Обновите UI с полученной информацией о фотографии
                     if (galleryItemInfo != null) {
                         Log.d(TAG, "Clicked: ${galleryItemInfo.ownerRealName}") // Логируем текст запроса
+                        // Добавить запись в базу данных
+                    }
+                    else{
+                        Log.e(TAG, "Bruh")
                     }
                     }
             }
