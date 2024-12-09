@@ -10,6 +10,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.mobile_development_lab_07.api.FlickrApi
 import com.example.mobile_development_lab_07.api.FlickrResponse
+import com.example.mobile_development_lab_07.api.GalleryItemInfo
 import com.example.mobile_development_lab_07.api.PhotoInterceptor
 import com.example.mobile_development_lab_07.api.PhotosResponse
 import okhttp3.OkHttpClient
@@ -61,7 +62,7 @@ class FlickrFetcher {
     }
 
     // Метод для получения информации о фотографии и возвращении этой информации в виде LiveData
-    fun fetchPhotoInfo(photoId: String): LiveData<GalleryItem> {
+    fun fetchPhotoInfo(photoId: String): LiveData<GalleryItemInfo> {
         return fetchPhotoInfo(flickrRequest=flickrApi.fetchPhotoInfo(photoId=photoId))
     }
 
@@ -106,9 +107,9 @@ class FlickrFetcher {
     }
 
     // Приватный метод для получения информации фотографии из ответа API
-    private fun fetchPhotoInfo(flickrRequest: Call<FlickrResponse>): LiveData<GalleryItem> {
+    private fun fetchPhotoInfo(flickrRequest: Call<FlickrResponse>): LiveData<GalleryItemInfo> {
 
-        val responseLiveData: MutableLiveData<GalleryItem> = MutableLiveData()
+        val responseLiveData: MutableLiveData<GalleryItemInfo> = MutableLiveData()
 
         flickrRequest.enqueue(object : Callback<FlickrResponse> {
             override fun onFailure(call: Call<FlickrResponse>, t: Throwable) {
@@ -127,8 +128,8 @@ class FlickrFetcher {
                     Log.i(TAG, "Taken at: ${response.body()!!.photo?.dates?.taken}") // Логируем ошибку при получении изображения
                     Log.i(TAG, "Real name of owner: ${response.body()!!.photo?.owner?.realname}") // Логируем ошибку при получении изображения
                     Log.i(TAG, "Url list: ${response.body()!!.photo?.urlS?.urlList}") // Логируем ошибку при получении изображения
-                    Log.i(TAG, "GalleryItem: ${response.body()!!.photo?.getGalleryItem()}") // Логируем ошибку при получении изображения
-                    val galleryItem: GalleryItem? = response.body()?.photo?.getGalleryItem()
+                    Log.i(TAG, "GalleryItem: ${response.body()!!.photo?.getGalleryItemInfo()}") // Логируем ошибку при получении изображения
+                    val galleryItem: GalleryItemInfo? = response.body()?.photo?.getGalleryItemInfo()
                     responseLiveData.value = galleryItem
 //                    Log.e(TAG, "Body: ${response.body()!!.photo?.galleryItem}") // Логируем ошибку при получении изображения
                 } else {

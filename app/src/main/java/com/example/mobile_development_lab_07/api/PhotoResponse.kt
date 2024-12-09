@@ -1,5 +1,7 @@
 package com.example.mobile_development_lab_07.api
 
+import android.os.Parcel
+import android.os.Parcelable
 import com.example.mobile_development_lab_07.GalleryItem
 import com.example.mobile_development_lab_07.Tag
 import com.google.gson.annotations.SerializedName
@@ -13,16 +15,30 @@ class PhotoResponse {
     @SerializedName("urls") val urlS: UrlS? = null // Вложенный класс для дат
 
     // Метод для преобразования в GalleryItem
-    fun getGalleryItem(): GalleryItem {
-        return GalleryItem(
-            id = id,
-            title = title?.content ?: "",
-            tags = tags?.tag ?: emptyList(),
-            ownerRealName = owner?.realname ?: "",
-            dateTaken = dates?.taken ?: "",
-            url = urlS?.urlList?.firstOrNull()?.content ?: "" // Получаем первый URL из списка
-        )
-    }
+    fun getGalleryItemInfo(): GalleryItemInfo = GalleryItemInfo(
+        id = id,
+        title = title?.content ?: "",
+        tags = tags?.tag ?: emptyList(),
+        ownerRealName = owner?.realname ?: "",
+        dateTaken = dates?.taken ?: "",
+        url = urlS?.urlList?.firstOrNull()?.content ?: "" // Получаем первый URL из списка
+   )
+}
+
+data class GalleryItemInfo(
+    var id: String = "",
+    var title: String = "",
+    var tags: List<Tag> = emptyList(),
+    var ownerRealName: String = "",
+    var dateTaken: String = "",
+    var url: String = "") {
+    fun getGalleryItem(): GalleryItem = GalleryItem(
+        id=id,
+        title=title,
+        ownerRealName = ownerRealName,
+        dateTaken = dateTaken,
+        url = url
+    )
 }
 
 

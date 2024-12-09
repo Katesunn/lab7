@@ -23,7 +23,11 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
+import com.example.mobile_development_lab_07.db.GalleryItemDatabase
 import com.squareup.picasso.Picasso // Библиотека для загрузки изображений
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 private const val TAG = "PhotoGalleryFragment" // Тег для логирования
@@ -189,13 +193,39 @@ class PhotoGalleryFragment : Fragment() {
                 photoGalleryViewModel.fetchPhotoInfo(photoId).observe(viewLifecycleOwner) { galleryItemInfo ->
                     // Обновите UI с полученной информацией о фотографии
                     if (galleryItemInfo != null) {
-                        Log.d(TAG, "Clicked: ${galleryItemInfo.ownerRealName}") // Логируем текст запроса
-                        // Добавить запись в базу данных
+                        Log.d(TAG, "Clicked: ${galleryItemInfo.id}") // Логируем текст запроса
+
+                        val db = GalleryItemDatabase.getDatabase(context = context)
+                        if (db != null){
+                            val galleryItemDao = db.galleryItemDao()
+
+                            CoroutineScope(Dispatchers.IO).launch {
+                                // Сохраняем GalleryItem
+                                galleryItemDao.insertGalleryItem(galleryItemInfo.getGalleryItem())
+                                val tagsList = galleryItemInfo.tags
+                                // Сохраняем теги
+                                galleryItemDao.insertTags(tagsList)
+
+                                // Создаем связи между GalleryItem и Tags
+                                val crossRefs = tagsList.map { tag ->
+                                    GalleryItemTagCrossRef(
+                                        galleryItemId = galleryItem.id,
+                                        tagId = tag.id
+                                    )
+                                }
+                                crossRefs.forEach { crossRef ->
+                                    galleryItemDao.insertGalleryItemTagCrossRef(crossRef)
+                                }
+                                val galleryItems : List<GalleryItem> = galleryItemDao.getAllGalleryItems()
+                                Log.i(TAG, "$galleryItems")
+                            }
+
+                        }
                     }
                     else{
                         Log.e(TAG, "Bruh")
                     }
-                    }
+                }
             }
             // устанавливаем высоту ImageView равной его ширине
             holder.itemView.post {

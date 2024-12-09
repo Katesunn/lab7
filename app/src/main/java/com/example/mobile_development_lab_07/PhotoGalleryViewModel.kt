@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.switchMap // Импортируем switchMap
+import com.example.mobile_development_lab_07.api.GalleryItemInfo
 
 // Класс PhotoGalleryViewModel наследует от AndroidViewModel
 class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app) {
@@ -36,7 +37,7 @@ class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app
     }
 
     // Метод для получения информации о фотографии по её ID
-    fun fetchPhotoInfo(photoId: String): LiveData<GalleryItem> {
+    fun fetchPhotoInfo(photoId: String): LiveData<GalleryItemInfo> {
         return flickrFetcher.fetchPhotoInfo(photoId=photoId) // Возвращаем LiveData с информацией о фотографии
     }
 }

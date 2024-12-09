@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.mobile_development_lab_07"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.mobile_development_lab_07"
@@ -16,6 +16,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
     buildTypes {
@@ -43,6 +44,12 @@ dependencies {
     implementation(libs.androidx.lifecycle.extensions)
     implementation(libs.androidx.lifecycle.livedata.ktx.v286)
     implementation(libs.androidx.preference.ktx)
+
+    implementation("androidx.room:room-runtime:2.6.1") // Основная библиотека Room
+    kapt("androidx.room:room-compiler:2.6.1") // Компилятор для аннотаций
+    implementation("androidx.room:room-ktx:2.6.1") // KTX для удобства работы с Room
+
+
     implementation(libs.retrofit)
     implementation(libs.converter.gson.v290)
     implementation(libs.gson)
@@ -58,6 +65,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.room.compiler)
+
+
+
+
+
 }
