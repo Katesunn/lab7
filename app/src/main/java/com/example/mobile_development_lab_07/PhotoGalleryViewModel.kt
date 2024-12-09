@@ -21,7 +21,7 @@ class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app
         if (searchTerm.isBlank()) {
             flickrFetcher.fetchPhotos() // Если поисковый запрос пустой, получаем интересные фотографии
         } else {
-            flickrFetcher.searchPhotos(searchTerm) // Иначе выполняем поиск по введенному запросу
+            flickrFetcher.searchPhotos(text = searchTerm) // Иначе выполняем поиск по введенному запросу
         }
     }
 

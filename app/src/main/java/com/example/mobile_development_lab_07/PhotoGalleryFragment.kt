@@ -141,6 +141,10 @@ class PhotoGalleryFragment : Fragment() {
                         activity?.invalidateOptionsMenu() // Обновляем меню активности после изменения состояния опроса
                         true
                     }
+                    R.id.menu_item_favorites -> {
+                        Log.d(TAG, "Favorites clicked") // Логируем текст запроса
+                        true
+                    }
                     else -> false // Возвращаем false для элементов меню, которые не обрабатываются
                 }
             }
@@ -163,6 +167,7 @@ class PhotoGalleryFragment : Fragment() {
         }
     }
 
+    // Здесь происходит наполнение карточки изображения (list_item_gallery)
     private inner class PhotoAdapter(private val galleryItems: List<GalleryItem>) : RecyclerView.Adapter<PhotoHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoHolder {
@@ -176,6 +181,17 @@ class PhotoGalleryFragment : Fragment() {
         override fun onBindViewHolder(holder: PhotoHolder, position: Int) {
             val galleryItem = galleryItems[position]  // Получаем элемент галереи по позиции
             holder.bindGalleryItem(galleryItem)  // Привязываем элемент к держателю представления
+            // устанавливаем обработчик нажатия
+            holder.itemView.setOnClickListener {
+                // Обрабатываем нажатие
+                Log.d(TAG, "Clicked: ${galleryItem.title}") // Логируем текст запроса
+            }
+            // устанавливаем высоту ImageView равной его ширине
+            holder.itemView.post {
+                val width = holder.itemView.width // Получаем ширину ImageView
+                holder.itemView.layoutParams.height = width // Устанавливаем высоту равной ширине
+                holder.itemView.requestLayout() // Запрашиваем перерисовку
+            }
         }
     }
 
