@@ -32,7 +32,7 @@ interface FlickrApi {
 
     // Метод для получения информации об изображении
     @GET("services/rest/") // Указываем HTTP метод и путь к ресурсу
-    fun getInfoPhotos(
+    fun fetchPhotoInfo(
         @Query("method") method: String = "flickr.photos.getInfo", // Параметр метода по умолчанию для получения информации о фото
         @Query("photo_id") photoId: String, // Параметр идентификатора фотографии
     ): Call<FlickrResponse> // Возвращаем объект Call с ответом от сервера

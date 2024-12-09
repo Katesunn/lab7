@@ -11,7 +11,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.mobile_development_lab_07.api.FlickrApi
 import com.example.mobile_development_lab_07.api.FlickrResponse
 import com.example.mobile_development_lab_07.api.PhotoInterceptor
-import com.example.mobile_development_lab_07.api.PhotoResponse
+import com.example.mobile_development_lab_07.api.PhotosResponse
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -55,6 +55,16 @@ class FlickrFetcher {
         return fetchPhotoMetadata(fetchPhotosRequest())
     }
 
+    // Метод для получения запроса на получение информации о фотографии
+    fun fetchPhotoInfoRequest(photoId: String): Call<FlickrResponse> {
+        return flickrApi.fetchPhotoInfo(photoId=photoId)
+    }
+
+    // Метод для получения информации о фотографии и возвращении этой информации в виде LiveData
+    fun fetchPhotoInfo(photoId: String): LiveData<GalleryItem> {
+        return fetchPhotoInfo(flickrRequest=flickrApi.fetchPhotoInfo(photoId=photoId))
+    }
+
     // Метод для получения запроса на поиск фотографий по тексту
     fun searchPhotosRequest(text: String): Call<FlickrResponse> {
         return flickrApi.searchPhotos(text=text)
@@ -82,9 +92,9 @@ class FlickrFetcher {
                 Log.d(TAG, "Response received") // Логируем успешный ответ
 
                 val flickrResponse: FlickrResponse? = response.body() // Получаем тело ответа
-                val photoResponse: PhotoResponse? = flickrResponse?.photos // Извлекаем фотографии
+                val photosResponse: PhotosResponse? = flickrResponse?.photos // Извлекаем фотографии
 
-                var galleryItems: List<GalleryItem> = photoResponse?.galleryItems ?: emptyList() // Получаем список галерей
+                var galleryItems: List<GalleryItem> = photosResponse?.galleryItems ?: emptyList() // Получаем список галерей
 
                 galleryItems = galleryItems.filterNot { it.url.isBlank() } // Фильтруем элементы без URL
 
@@ -93,6 +103,35 @@ class FlickrFetcher {
         })
         return responseLiveData // Возвращаем LiveData со списком галерей
     }
+
+    // Приватный метод для получения информации фотографии из ответа API
+    private fun fetchPhotoInfo(flickrRequest: Call<FlickrResponse>): LiveData<GalleryItem> {
+        val responseLiveData: MutableLiveData<GalleryItem> = MutableLiveData()
+
+        flickrRequest.enqueue(object : Callback<FlickrResponse> {
+            override fun onFailure(call: Call<FlickrResponse>, t: Throwable) {
+                Log.e(TAG, "Failed to fetch photo info", t)
+            }
+
+            override fun onResponse(
+                call: Call<FlickrResponse>,
+                response: Response<FlickrResponse>
+            ) {
+                Log.d(TAG, "Response received")
+
+                val flickrResponse: FlickrResponse? = response.body()
+                val photoResponse = flickrResponse?.photo // Получаем объект <photo> из ответа
+
+                // Преобразуем photoInfo в GalleryItem
+                val galleryItem = photoResponse!!.galleryItem
+                responseLiveData.value = galleryItem // Устанавливаем значение в LiveData
+
+            }
+        })
+        return responseLiveData
+    }
+
+
 
     @WorkerThread // Указываем, что этот метод должен выполняться в фоновом потоке
     fun fetchPhoto(url: String): LiveData<Bitmap?> {
