@@ -184,7 +184,14 @@ class PhotoGalleryFragment : Fragment() {
             // устанавливаем обработчик нажатия
             holder.itemView.setOnClickListener {
                 // Обрабатываем нажатие
-                Log.d(TAG, "Clicked: ${galleryItem.title}") // Логируем текст запроса
+
+                val photoId = galleryItem.id // Получаем ID фотографии
+                photoGalleryViewModel.fetchPhotoInfo(photoId).observe(viewLifecycleOwner) { galleryItemInfo ->
+                    // Обновите UI с полученной информацией о фотографии
+                    if (galleryItemInfo != null) {
+                        Log.d(TAG, "Clicked: ${galleryItemInfo.ownerRealName}") // Логируем текст запроса
+                    }
+                    }
             }
             // устанавливаем высоту ImageView равной его ширине
             holder.itemView.post {

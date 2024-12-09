@@ -34,4 +34,9 @@ class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app
         QueryPreferences.setStoredQuery(app, query) // Сохраняем поисковый запрос в предпочтениях приложения
         mutableSearchTerm.value = query // Обновляем значение mutableSearchTerm, что вызовет обновление galleryItemLiveData
     }
+
+    // Метод для получения информации о фотографии по её ID
+    fun fetchPhotoInfo(photoId: String): LiveData<GalleryItem> {
+        return flickrFetcher.fetchPhotoInfo(photoId=photoId) // Возвращаем LiveData с информацией о фотографии
+    }
 }

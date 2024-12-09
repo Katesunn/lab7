@@ -93,6 +93,7 @@ class FlickrFetcher {
 
                 val flickrResponse: FlickrResponse? = response.body() // Получаем тело ответа
                 val photosResponse: PhotosResponse? = flickrResponse?.photos // Извлекаем фотографии
+                Log.d(TAG, "Photos: ${photosResponse?.galleryItems}") // Логируем успешный ответ
 
                 var galleryItems: List<GalleryItem> = photosResponse?.galleryItems ?: emptyList() // Получаем список галерей
 
@@ -106,6 +107,7 @@ class FlickrFetcher {
 
     // Приватный метод для получения информации фотографии из ответа API
     private fun fetchPhotoInfo(flickrRequest: Call<FlickrResponse>): LiveData<GalleryItem> {
+
         val responseLiveData: MutableLiveData<GalleryItem> = MutableLiveData()
 
         flickrRequest.enqueue(object : Callback<FlickrResponse> {
@@ -117,15 +119,19 @@ class FlickrFetcher {
                 call: Call<FlickrResponse>,
                 response: Response<FlickrResponse>
             ) {
-                Log.d(TAG, "Response received")
+                if (response.isSuccessful) { // Проверяем успешность ответа
+                    Log.e(TAG, "Success fetching photo info: ${response.raw()}") // Логируем ошибку при получении изображения
+                    Log.e(TAG, "Body: ${response.body()!!.photo?.id}") // Логируем ошибку при получении изображения
+                    Log.e(TAG, "Body: ${response.body()!!.photo?.title?.content}") // Логируем ошибку при получении изображения
+                    Log.e(TAG, "Body: ${response.body()!!.photo?.tags}") // Логируем ошибку при получении изображения
+                    Log.e(TAG, "Body: ${response.body()!!.photo?.dates?.taken}") // Логируем ошибку при получении изображения
+                    Log.e(TAG, "Body: ${response.body()!!.photo?.owner?.realname}") // Логируем ошибку при получении изображения
+                    Log.e(TAG, "Body: ${response.body()!!.photo?.urlS?.urlList}") // Логируем ошибку при получении изображения
 
-                val flickrResponse: FlickrResponse? = response.body()
-                val photoResponse = flickrResponse?.photo // Получаем объект <photo> из ответа
-
-                // Преобразуем photoInfo в GalleryItem
-                val galleryItem = photoResponse!!.galleryItem
-                responseLiveData.value = galleryItem // Устанавливаем значение в LiveData
-
+//                    Log.e(TAG, "Body: ${response.body()!!.photo?.galleryItem}") // Логируем ошибку при получении изображения
+                } else {
+                    Log.e(TAG, "Error fetching photo info: ${response.errorBody()?.string()}") // Логируем ошибку при получении изображения
+                }
             }
         })
         return responseLiveData
