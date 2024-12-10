@@ -1,7 +1,5 @@
 package com.example.mobile_development_lab_07.api
 
-import android.os.Parcel
-import android.os.Parcelable
 import com.example.mobile_development_lab_07.GalleryItem
 import com.example.mobile_development_lab_07.Tag
 import com.google.gson.annotations.SerializedName
@@ -21,7 +19,7 @@ class PhotoResponse {
         tags = tags?.tag ?: emptyList(),
         ownerRealName = owner?.realname ?: "",
         dateTaken = dates?.taken ?: "",
-        url = urlS?.urlList?.firstOrNull()?.content ?: "" // Получаем первый URL из списка
+        page_url = urlS?.urlList?.firstOrNull()?.content ?: "" // Получаем первый URL из списка
    )
 }
 
@@ -31,13 +29,13 @@ data class GalleryItemInfo(
     var tags: List<Tag> = emptyList(),
     var ownerRealName: String = "",
     var dateTaken: String = "",
-    var url: String = "") {
+    var page_url: String = "") {
     fun getGalleryItem(): GalleryItem = GalleryItem(
         id=id,
         title=title,
         ownerRealName = ownerRealName,
         dateTaken = dateTaken,
-        url = url
+        page_url = page_url
     )
 }
 

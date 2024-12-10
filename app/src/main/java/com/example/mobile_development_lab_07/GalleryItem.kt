@@ -10,7 +10,8 @@ data class GalleryItem(
     var title: String = "",
     var ownerRealName: String = "",
     var dateTaken: String = "",
-    @SerializedName("url_s")var url: String = ""
+    @SerializedName("url_s")var url: String = "",
+    var page_url: String = ""
 )
 
 @Entity(tableName = "tags")

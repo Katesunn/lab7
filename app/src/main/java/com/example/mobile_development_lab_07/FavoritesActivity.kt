@@ -9,10 +9,16 @@ class FavoritesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_favorites)
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.container, FavoritesFragment.newInstance())
-                .commitNow()
+        // Проверяем, пуст ли контейнер для фрагмента (savedInstanceState будет null при первом создании активности)
+        val isFragmentContainerEmpty = savedInstanceState == null
+
+        // Если контейнер пуст, добавляем новый фрагмент PhotoGalleryFragment
+        if (isFragmentContainerEmpty) {
+            supportFragmentManager // Получаем экземпляр FragmentManager для управления фрагментами
+                .beginTransaction() // Начинаем транзакцию фрагментов
+                .add(R.id.container, FavoritesFragment.newInstance()) // Добавляем новый экземпляр фрагмента в контейнер
+                .commit() // Подтверждаем транзакцию
         }
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
     }
 }

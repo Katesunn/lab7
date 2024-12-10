@@ -8,4 +8,7 @@
     <string name="new_pictures_text">You have new pictures in PhotoGallery.</string>
     <string name="start_polling">Start polling</string>
     <string name="stop_polling">Stop polling</string>
+    <string name="delete_all">Delete all</string>
+    <string name="back">Back</string>
+    <string name="x">X</string>
 </resources>

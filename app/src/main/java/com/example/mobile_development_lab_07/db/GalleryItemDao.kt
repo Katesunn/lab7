@@ -24,4 +24,10 @@ interface GalleryItemDao {
 
     @Query("SELECT * FROM tags WHERE id IN (SELECT tagId FROM gallery_item_tag_cross_ref WHERE galleryItemId = :galleryItemId)")
     suspend fun getTagsForGalleryItem(galleryItemId: String): List<Tag>
+
+    @Query("DELETE FROM gallery_items")
+    suspend fun deleteAllGalleryItems()
+
+    @Query("DELETE FROM gallery_items WHERE id = :galleryItemId")
+    suspend fun deleteGalleryItem(galleryItemId: String)
 }

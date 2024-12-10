@@ -14,22 +14,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MaterialComponents.Bridge"
+        android:theme="@style/Theme.Material3.Dark"
         tools:targetApi="35">
         <activity
             android:name=".FavoritesActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".PhotoGalleryActivity"/>
         <activity
             android:name=".PhotoGalleryActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

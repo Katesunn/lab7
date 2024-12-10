@@ -9,7 +9,7 @@ import com.example.mobile_development_lab_07.GalleryItemTagCrossRef
 import com.example.mobile_development_lab_07.Tag
 
 // Указываем версии и сущности базы данных
-@Database(entities = [GalleryItem::class, Tag::class, GalleryItemTagCrossRef::class], version = 1)
+@Database(entities = [GalleryItem::class, Tag::class, GalleryItemTagCrossRef::class], version = 2)
 abstract class GalleryItemDatabase : RoomDatabase() {
     abstract fun galleryItemDao(): GalleryItemDao
 

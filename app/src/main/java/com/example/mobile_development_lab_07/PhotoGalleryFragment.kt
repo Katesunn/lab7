@@ -1,6 +1,7 @@
 // Указываем пакет, в котором находится наш класс
 package com.example.mobile_development_lab_07
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar // Импортируем ProgressBar для индикатора загрузки
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -28,6 +30,7 @@ import com.squareup.picasso.Picasso // Библиотека для загруз�
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 private const val TAG = "PhotoGalleryFragment" // Тег для логирования
@@ -147,6 +150,9 @@ class PhotoGalleryFragment : Fragment() {
                     }
                     R.id.menu_item_favorites -> {
                         Log.d(TAG, "Favorites clicked") // Логируем текст запроса
+                        // Переход в FavoritesActivity
+                        val intent = Intent(requireContext(), FavoritesActivity::class.java)
+                        startActivity(intent)
                         true
                     }
                     else -> false // Возвращаем false для элементов меню, которые не обрабатываются
@@ -190,6 +196,7 @@ class PhotoGalleryFragment : Fragment() {
                 // Обрабатываем нажатие
 
                 val photoId = galleryItem.id // Получаем ID фотографии
+                Log.i(TAG, galleryItem.url)
                 photoGalleryViewModel.fetchPhotoInfo(photoId).observe(viewLifecycleOwner) { galleryItemInfo ->
                     // Обновите UI с полученной информацией о фотографии
                     if (galleryItemInfo != null) {
@@ -200,24 +207,43 @@ class PhotoGalleryFragment : Fragment() {
                             val galleryItemDao = db.galleryItemDao()
 
                             CoroutineScope(Dispatchers.IO).launch {
-                                // Сохраняем GalleryItem
-                                galleryItemDao.insertGalleryItem(galleryItemInfo.getGalleryItem())
-                                val tagsList = galleryItemInfo.tags
-                                // Сохраняем теги
-                                galleryItemDao.insertTags(tagsList)
+                                try{
+                                    // Сохраняем GalleryItem
+                                    val fetchedGalleryItem = galleryItemInfo.getGalleryItem()
+                                    fetchedGalleryItem.url = galleryItem.url
+                                    galleryItemDao.insertGalleryItem(fetchedGalleryItem)
+                                    val tagsList = galleryItemInfo.tags
+                                    // Сохраняем теги
+                                    galleryItemDao.insertTags(tagsList)
 
-                                // Создаем связи между GalleryItem и Tags
-                                val crossRefs = tagsList.map { tag ->
-                                    GalleryItemTagCrossRef(
-                                        galleryItemId = galleryItem.id,
-                                        tagId = tag.id
-                                    )
+                                    // Создаем связи между GalleryItem и Tags
+                                    val crossRefs = tagsList.map { tag ->
+                                        GalleryItemTagCrossRef(
+                                            galleryItemId = galleryItem.id,
+                                            tagId = tag.id
+                                        )
+                                    }
+                                    crossRefs.forEach { crossRef ->
+                                        galleryItemDao.insertGalleryItemTagCrossRef(crossRef)
+                                    }
+
+                                    // Уведомляем об успешном сохранении
+                                    withContext(Dispatchers.Main) {
+                                        Toast.makeText(
+                                            context,
+                                            "Запись успешно сохранена!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+//                                val galleryItems : List<GalleryItem> = galleryItemDao.getAllGalleryItems()
+//                                Log.i(TAG, "$galleryItems")
                                 }
-                                crossRefs.forEach { crossRef ->
-                                    galleryItemDao.insertGalleryItemTagCrossRef(crossRef)
+                                catch (e: Exception){
+                                    withContext(Dispatchers.Main) {
+                                        Toast.makeText(context, "Ошибка при сохранении записи", Toast.LENGTH_SHORT).show()
+                                        Log.e(TAG, "${e.message}")
+                                    }
                                 }
-                                val galleryItems : List<GalleryItem> = galleryItemDao.getAllGalleryItems()
-                                Log.i(TAG, "$galleryItems")
                             }
 
                         }
