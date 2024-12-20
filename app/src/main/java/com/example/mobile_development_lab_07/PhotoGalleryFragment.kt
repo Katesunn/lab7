@@ -59,7 +59,7 @@ class PhotoGalleryFragment : Fragment() {
 
         // Инициализация RecyclerView и установка менеджера компоновки в виде сетки с 3 столбцами
         photoRecyclerView = view.findViewById(R.id.photo_recycler_view)
-        photoRecyclerView.layoutManager = GridLayoutManager(context, 3)
+        photoRecyclerView.layoutManager = GridLayoutManager(context, 4)
 
         // Инициализация индикатора загрузки из макета фрагмента
         loadingIndicator = view.findViewById(R.id.loading_indicator)
@@ -172,7 +172,7 @@ class PhotoGalleryFragment : Fragment() {
         fun bindGalleryItem(galleryItem: GalleryItem) {
             Picasso.get()  // Используем библиотеку Picasso для загрузки изображения
                 .load(galleryItem.url)  // Загружаем изображение по URL из объекта GalleryItem
-                .placeholder(R.drawable.bill_up_close)  // Устанавливаем изображение-заполнитель во время загрузки
+                .placeholder(R.drawable.ic_launcher_background)  // Устанавливаем изображение-заполнитель во время загрузки
                 .into(itemImageView)  // Загружаем изображение в ImageView
         }
     }

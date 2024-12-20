@@ -36,7 +36,7 @@ class FavoritesItemHolder(itemView: View, private val context: Context, private 
         Picasso.get()  // Используем библиотеку Picasso для загрузки изображения
 //            .load(galleryItem.url)  // Загружаем изображение по URL из объекта GalleryItem
             .load(galleryItem.url)  // Загружаем изображение по URL из объекта GalleryItem
-            .placeholder(R.drawable.bill_up_close)  // Устанавливаем изображение-заполнитель во время загрузки
+            .placeholder(R.drawable.ic_launcher_background)  // Устанавливаем изображение-заполнитель во время загрузки
             .into(imageViewThumbnail)  // Загружаем изображение в ImageView
 
         // Получение тегов и установка их в текстовое поле

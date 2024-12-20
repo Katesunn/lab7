@@ -27,7 +27,7 @@ class PhotoGalleryViewModel(private val app: Application) : AndroidViewModel(app
     }
 
     init {
-        mutableSearchTerm.value = "planets" // Устанавливаем начальное значение для поискового запроса
+        mutableSearchTerm.value = "cars" // Устанавливаем начальное значение для поискового запроса
     }
 
     // Метод для обновления поискового запроса и сохранения его в предпочтениях
